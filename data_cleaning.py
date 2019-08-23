@@ -62,6 +62,7 @@ def full_clean():
     cleaning_data2 = change_data_type(cleaning_data1)
     cleaning_data3 = add_columns(cleaning_data2)
     cleaned_data = clean_column_names(cleaning_data3)
+    cleaned_data.dropna(inplace=True)
     cleaned_data.to_csv('./data/cleaned_for_testing.csv')
 
     return cleaned_data
