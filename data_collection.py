@@ -6,7 +6,7 @@ import pandas as pd
 
 def get_hospital_data():
     '''Retrieve hospital data from data.cms.gov API'''
-    response = requests.get('https://data.cms.gov/resource/fm2n-hjj6.json')
+    response = requests.get('https://data.cms.gov/resource/fm2n-hjj6.json?$limit=200000')
     resp_json = response.json()
     hosp_data = pd.DataFrame(resp_json)
     hosp_data['full_address'] = hosp_data['provider_street_address'] + ', ' + \
@@ -89,7 +89,7 @@ def join_data(hosp_data, location_data):
 def get_dirty_data():
     '''Produce dirty_data.csv in ./data/'''
     hosp_data = get_hospital_data()
-    location_data = get_location_data(hosp_data[0:5])
+    location_data = get_location_data(hosp_data)
     dirty_data = join_data(hosp_data, location_data)
     dirty_data.to_csv('./data/dirty_data')
     return dirty_data
