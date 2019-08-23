@@ -11,14 +11,34 @@ Each support function should have an informative name and return the partially c
 """
 import pandas as pd
 
-def support_function_one(example):
-    pass
+def drop_columns(dirty_data):
+    dirty_data.drop(columns=['provider_zip_code', 'provider_street_address',
+                             'provider_state', 'provider_id', 'provider_city',
+                             'hospital_referral_region_hrr_description', 
+                             'Unnamed: 0'], inplace=True)
+    return dirty_data
 
-def support_function_two(example):
-    pass
+def change_data_type(dirty_data):
+    dirty_data['average_covered_charges'] = dirty_data['average_covered_charges'].astype(
+        float)
+    dirty_data['average_medicare_payments'] = dirty_data['average_medicare_payments'].astype(
+        float)
+    dirty_data['average_total_payments'] = dirty_data['average_total_payments'].astype(
+        float)
+    dirty_data['total_discharges'] = dirty_data['average_total_payments'].astype(
+        int)
+    return dirty_data
 
-def support_function_three(example):
-    pass
+def add_columns(dirty_data):
+    dirty_data['out_of_pocket'] = dirty_data.average_total_payments - \
+        dirty_data.average_medicare_payments
+    dirty_data['perc_covered'] = dirty_data.average_medicare_payments / \
+        dirty_data.average_covered_charges
+    return dirty_data
+
+def clean_column_names(dirty_data):
+    dirty_data.columns = dirty_data.columns.map(lambda x: x.lower())
+    return dirty_data
 
 def full_clean():
     """
@@ -27,11 +47,12 @@ def full_clean():
 
     :return: cleaned dataset to be passed to hypothesis testing and visualization modules.
     """
-    dirty_data = pd.read_csv("./data/dirty_data.csv")
+    dirty_data = pd.read_csv("./data/dirty_data.csv", dtype=str)
 
-    cleaning_data1 = support_function_one(dirty_data)
-    cleaning_data2 = support_function_two(cleaning_data1)
-    cleaned_data= support_function_three(cleaning_data2)
+    cleaning_data1 = drop_columns(dirty_data)
+    cleaning_data2 = change_data_type(cleaning_data1)
+    cleaning_data3 = add_columns(cleaning_data2)
+    cleaned_data= clean_column_names(cleaning_data3)
     cleaned_data.to_csv('./data/cleaned_for_testing.csv')
     
     return cleaned_data

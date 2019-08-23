@@ -91,5 +91,5 @@ def get_dirty_data():
     hosp_data = get_hospital_data()
     location_data = get_location_data(hosp_data)
     dirty_data = join_data(hosp_data, location_data)
-    dirty_data.to_csv('./data/dirty_data')
+    dirty_data.to_csv('./data/dirty_data.csv')
     return dirty_data
