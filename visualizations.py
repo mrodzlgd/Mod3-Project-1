@@ -6,11 +6,6 @@ A framework for each type of visualization is provided.
 
 import matplotlib.pyplot as plt
 import seaborn as sns
-import pandas as pd
-import numpy as np
-from hypothesis_tests import create_sample_dists
-from hypothesis_tests import get_sample_means
-
 
 # Set specific parameters for the visualizations
 large = 22; med = 16; small = 12
@@ -25,39 +20,6 @@ plt.rcParams.update(params)
 plt.style.use('seaborn-whitegrid')
 sns.set_style("white")
 
-def plot_distribution_means(cleaned_data,y_var=None,categories = []):
-
-    # Get data for tests
-    comparison_groups = comparison_groups = create_sample_dists(cleaned_data, y_var='average_covered_charges', categories=['metro','non_metro'])
-
-    ###
-    
-    # Main chunk of code using t-tests or z-tests, effect size, power, etc
-    
-    metro_means = get_sample_means(comparison_groups[0],100)
-    non_metro_means = get_sample_means(comparison_groups[1],100)
-   
-    sns.distplot(metro_means, label=str(categories[0]))
-    sns.distplot(non_metro_means , label=str(categories[1]))
-    plt.legend()
-
-
-
-
-def plot_distribution(cleaned_data,y_var=None,categories = []):
-
-    # Get data for tests
-    comparison_groups = comparison_groups = create_sample_dists(cleaned_data, y_var='average_covered_charges', categories=['metro','non_metro'])
-
-    ###
-    
-    metro_sample = comparison_groups[0]
-    non_metro_sample = comparison_groups[1]
-        
-    sns.distplot(metro_sample, label=str(categories[0]))
-    sns.distplot(non_metro_sample , label=str(categories[1]))
-    plt.legend()
-    
 
 def overlapping_density(package=None, input_vars=None, target_vars=None):
     """

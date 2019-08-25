@@ -41,10 +41,8 @@ def get_sample_means(data,sample_size):
 def Cohen_d(group1, group2):
 
     # Compute Cohen's d.
-
     # group1: Series or NumPy array
     # group2: Series or NumPy array
-
     # returns a floating point number 
 
     diff = np.mean(group1) - np.mean(group2)
@@ -162,7 +160,7 @@ def hypothesis_test_two(cleaned_data,alpha = None):#out_of_pocket
 
     return status
 
-def hypothesis_test_three(cleaned_data,alpha = None):
+def hypothesis_test_three(cleaned_data,alpha = None):#perc covered
      # Get data for tests
     comparison_groups = comparison_groups = create_sample_dists(cleaned_data, y_var='perc_covered', categories=['metro','non_metro'])
 
