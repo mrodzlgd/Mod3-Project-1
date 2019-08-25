@@ -2,7 +2,7 @@
 and joins census data based on latitude and longitude of hospital address'''
 import requests
 import pandas as pd
-
+from tqdm import tqdm
 
 def get_hospital_data():
     '''Retrieve hospital data from data.cms.gov API'''
@@ -62,7 +62,7 @@ def get_location_data(hosp_data):
     api_key = input('Enter Google Maps API Key: ')
     tract_geoids = []
     unique_addresses = hosp_data.full_address.unique()
-    for address in unique_addresses:
+    for address in tqdm(unique_addresses):
         try:
             lat, lng = get_lat_lng(address, api_key)
             geoid = get_geoid(lat, lng)
