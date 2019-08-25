@@ -21,7 +21,7 @@ plt.style.use('seaborn-whitegrid')
 sns.set_style("white")
 
 
-def overlapping_density(package=None, input_vars=None, target_vars=None):
+def overlapping_density(package=None, input_vars=None, target_var=None):
     """
     Set the characteristics of your overlapping density plot
     All arguments are set to None purely as a filler right now
@@ -43,34 +43,14 @@ def overlapping_density(package=None, input_vars=None, target_vars=None):
     fig = plt.figure(figsize=(16, 10), dpi=80)
 
     # Starter code for figuring out which package to use
-    if package == "sns":
+    if package == 'sns':
         for variable in input_vars:
-            sns.kdeplot(...)
+            sns.kdeplot(variable[target_var])
     elif package == 'matplotlib':
         for variable in input_vars:
             plt.plot(..., label=None, linewidth=None, color=None, figure = fig)
 
     return fig
-
-
-
-def boxplot_plot(package=None, input_vars=None, target_vars=None):
-    """
-    Same specifications and requirements as overlapping density plot
-
-    Function takes package name, input variables(categories), and target variable as input.
-    Returns a figure
-
-    PARAMETERS
-
-    :param package:        should only take sns or matplotlib as inputs, any other value should throw and error
-    :param input_vars:     should take the x variables/categories you want to plot
-    :param target_vars:    the y variable of your plot, what you are comparing
-    :return:               fig to be enhanced in subsequent visualization functions
-    """
-    plt.figure(figsize=(16, 10), dpi=80)
-
-    pass
 
 
 def visualization_one(target_var = None, input_vars= None, output_image_name=None):
@@ -87,6 +67,7 @@ def visualization_one(target_var = None, input_vars= None, output_image_name=Non
     ###
     # Main chunk of code here
     ###
+    overlapping_density(package='sns', input_vars, target_vars)
 
     # Starter code for labeling the image
     plt.xlabel(None, figure = fig)

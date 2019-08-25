@@ -10,16 +10,16 @@ import pandas as pd
 import numpy as np
 import scipy.stats as st
 import matplotlib.pyplot as plt
+import visualizations
 from statsmodels.stats import power as pw
 
-def create_sample_dists(cleaned_data, y_var=None, categories=[]):
+def create_sample_dists(cleaned_data, y_var=None):
     """
     Each hypothesis test will require you to create a sample distribution from your data
     Best make a repeatable function
 
     :param cleaned_data:
     :param y_var: The numeric variable you are comparing
-    :param categories: the categories whose means you are comparing
     :return: a list of sample distributions to be used in subsequent t-tests
 
     """
@@ -27,16 +27,8 @@ def create_sample_dists(cleaned_data, y_var=None, categories=[]):
     non_metro = cleaned_data.loc[cleaned_data['csi'] != 1][y_var]
     
     htest_dfs = [metro,non_metro]
-
-    # Main chunk of code using t-tests or z-tests
-    return htest_dfs
     
-def get_sample_means(data,sample_size):
-    means = []
-    for i in range(0,100000):
-        a_mean = np.mean(np.random.choice(data, size=sample_size))
-        means.append(a_mean)
-    return means
+    return htest_dfs
     
 def Cohen_d(group1, group2):
 
@@ -69,7 +61,7 @@ def compare_pval_alpha(p_val, alpha):
     return status
 
 
-def hypothesis_test_one(cleaned_data,alpha = None):#Total Hospital Charges
+def hypothesis_test_one(cleaned_data,alpha = 0.5):#Total Hospital Charges
     """
     Describe the purpose of your hypothesis test in the docstring
     These functions should be able to test different levels of alpha for the hypothesis test.
@@ -80,24 +72,23 @@ def hypothesis_test_one(cleaned_data,alpha = None):#Total Hospital Charges
     :return:
     """
     # Get data for tests
-    comparison_groups = comparison_groups = create_sample_dists(cleaned_data, y_var='average_covered_charges', categories=['metro','non_metro'])
-
+    comparison_groups = create_sample_dists(cleaned_data,
+                                            y_var='average_covered_charges')
     ###
     
     # Main chunk of code using t-tests or z-tests, effect size, power, etc
-    
-   # metro_means = get_sample_means(comparison_groups[0],100)
-   # non_metro_means = get_sample_means(comparison_groups[1],100)
    
     metro_sample = comparison_groups[0]
     non_metro_sample = comparison_groups[1]
     
     p_val = st.ttest_ind(metro_sample, non_metro_sample, equal_var=False)[1]
-    d = st.ttest_ind(metro_sample, non_metro_sample, equal_var=False)[0]
-    coh_d = Cohen_d(metro_sample, non_metro_sample)
-    power = pw.tt_ind_solve_power(effect_size=d, nobs1=100, alpha=alpha, power=None, ratio=1.0, alternative='two-sided')
+    coh_d = abs(Cohen_d(metro_sample, non_metro_sample))
+    nobs1 = len(non_metro_sample)
+    ratio = len(metro_sample)/nobs1
+    power = pw.tt_ind_solve_power(effect_size=coh_d, nobs1=nobs1, alpha=alpha, 
+                                  power=None, ratio=ratio,
+                                  alternative='two-sided')
     ###
-
 
     # starter code for return statement and printed results
     status = compare_pval_alpha(p_val, alpha)
@@ -119,26 +110,26 @@ def hypothesis_test_one(cleaned_data,alpha = None):#Total Hospital Charges
     return status
     
     
-def hypothesis_test_two(cleaned_data,alpha = None):#out_of_pocket
+def hypothesis_test_two(cleaned_data,alpha = 0.5):#out_of_pocket
      # Get data for tests
-    comparison_groups = comparison_groups = create_sample_dists(cleaned_data, y_var='out_of_pocket', categories=['metro','non_metro'])
+    comparison_groups = create_sample_dists(cleaned_data, 
+                                            y_var='out_of_pocket')
 
     ###
    
     # Main chunk of code using t-tests or z-tests, effect size, power, etc
-    
-    metro_means = get_sample_means(comparison_groups[0],100)
-    non_metro_means = get_sample_means(comparison_groups[1],100)
    
     metro_sample = comparison_groups[0]
     non_metro_sample = comparison_groups[1]
     
     p_val = st.ttest_ind(metro_sample, non_metro_sample, equal_var=False)[1]
-    d = st.ttest_ind(metro_sample, non_metro_sample, equal_var=False)[0]
-    coh_d = Cohen_d(metro_sample, non_metro_sample)
-    power = pw.tt_ind_solve_power(effect_size=d, nobs1=100, alpha=alpha, power=None, ratio=1.0, alternative='two-sided')
-  
-  ###
+    coh_d = abs(Cohen_d(metro_sample, non_metro_sample))
+    nobs1 = len(non_metro_sample)
+    ratio = len(metro_sample)/nobs1
+    power = pw.tt_ind_solve_power(effect_size=coh_d, nobs1=nobs1, alpha=alpha, 
+                                  power=None, ratio=ratio,
+                                  alternative='two-sided')
+    ###
 
 
     # starter code for return statement and printed results
@@ -150,7 +141,7 @@ def hypothesis_test_two(cleaned_data,alpha = None):#out_of_pocket
         assertion = "can"
         # calculations for effect size, power, etc here as well
 
-    print(f'Based on the p value of {p_val} and our aplha of {alpha} we {status.lower()}  the null hypothesis.'
+    print(f'Based on the p value of {p_val} and our aplha of {alpha} we {status.lower()} the null hypothesis.'
           f'\n Due to these results, we  {assertion} state that there is a difference in out-of-pocket cost for patients using Hospitals in Metro vs. Non-Metro Areas')
 
     if assertion == 'can':
@@ -160,24 +151,25 @@ def hypothesis_test_two(cleaned_data,alpha = None):#out_of_pocket
 
     return status
 
-def hypothesis_test_three(cleaned_data,alpha = None):#perc covered
+def hypothesis_test_three(cleaned_data,alpha = 0.5):#perc covered
      # Get data for tests
-    comparison_groups = comparison_groups = create_sample_dists(cleaned_data, y_var='perc_covered', categories=['metro','non_metro'])
+    comparison_groups = create_sample_dists(cleaned_data,
+                                            y_var='perc_covered')
 
     ###
     
     # Main chunk of code using t-tests or z-tests, effect size, power, etc
-    
-    metro_means = get_sample_means(comparison_groups[0],100)
-    non_metro_means = get_sample_means(comparison_groups[1],100)
-   
+
     metro_sample = comparison_groups[0]
     non_metro_sample = comparison_groups[1]
     
     p_val = st.ttest_ind(metro_sample, non_metro_sample, equal_var=False)[1]
-    d = st.ttest_ind(metro_sample, non_metro_sample, equal_var=False)[0]
-    coh_d = Cohen_d(metro_sample, non_metro_sample)
-    power = pw.tt_ind_solve_power(effect_size=d, nobs1=100, alpha=alpha, power=None, ratio=1.0, alternative='two-sided')
+    coh_d = abs(Cohen_d(metro_sample, non_metro_sample))
+    nobs1 = len(non_metro_sample)
+    ratio = len(metro_sample)/nobs1
+    power = pw.tt_ind_solve_power(effect_size=coh_d, nobs1=nobs1, alpha=alpha, 
+                                  power=None, ratio=ratio,
+                                  alternative='two-sided')
     ###
 
 
@@ -191,7 +183,7 @@ def hypothesis_test_three(cleaned_data,alpha = None):#perc covered
         # calculations for effect size, power, etc here as well
 
     print(f'Based on the p value of {p_val} and our aplha of {alpha} we {status.lower()}  the null hypothesis.'
-          f'\n Due to these results, we  {assertion} state that there is a difference in the percentage in the amount of total payments received by Hospitals in Metro vs. Non-Metro Areas for provided services.')
+          f'\n Due to these results, we  {assertion} state that there is a difference in the percentage of charges covered by medicare for Hospitals in Metro vs. Non-Metro Areas for the provided services.')
 
     if assertion == 'can':
         print(f"with an effect size, cohen's d, of {str(coh_d)} and power of {power}.")
