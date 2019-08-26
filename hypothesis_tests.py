@@ -10,8 +10,8 @@ import pandas as pd
 import numpy as np
 import scipy.stats as st
 import matplotlib.pyplot as plt
-import visualizations
 from statsmodels.stats import power as pw
+from tqdm import tqdm_notebook
 
 def create_sample_dists(cleaned_data, y_var=None):
     """
@@ -193,5 +193,47 @@ def hypothesis_test_three(cleaned_data,alpha = 0.5):#perc covered
     return status
 
 
-def hypothesis_test_four():
-    pass
+def hypothesis_test_four(cleaned_data):
+    
+    sig_procs = []
+    sig_cohens = []
+
+    for i in tqdm_notebook(cleaned_data.drg_definition.unique()):
+        metro = cleaned_data.loc[(cleaned_data.csi == '1') & (cleaned_data.drg_definition == i)]['average_covered_charges']
+        non_metro = cleaned_data.loc[(cleaned_data.csi != '1') & (cleaned_data.drg_definition == i)]['average_covered_charges']
+        if st.ttest_ind(metro, non_metro, equal_var=False)[1] < 0.05:
+            sig_procs.append(i)
+            sig_cohens.append(Cohen_d(metro, non_metro))
+        
+    relevant_codes = pd.DataFrame([pd.Series(sig_procs, name='sig_procs'), pd.Series(sig_cohens, name='cohens_d')]).T
+
+    relevant_codes.sig_procs = relevant_codes.sig_procs.map(lambda x: x[0:3]).astype(int)
+
+    drg = pd.read_csv('data/DRG.csv')
+    drg['group_size'] = drg.Code_End-drg.Code_Start
+
+    drg_d = drg.to_dict('records')
+
+    code_ref = []
+    for i in range(0,len(drg_d)):
+        for c in relevant_codes.sig_procs:
+            if drg_d[i]['Code_Start'] <= c <= drg_d[i]['Code_End']:
+                code_ref.append({'sig_procs': c,'Code_Start':drg_d[i]['Code_Start'],'Code_End':
+                             drg_d[i]['Code_End'],'Group':drg_d[i]['Description']})
+    code_map = pd.DataFrame.from_dict(code_ref)
+    code_map['cohens_d'] = relevant_codes.cohens_d
+
+    cum_codes = code_map.groupby('Group').size().reset_index()
+    cum_cohen = code_map.groupby('Group').cohens_d.sum().reset_index().cohens_d
+    # cum_codes.columns = ['Description', 'num_sig_procs']
+
+    cum_codes['sum_effect'] = cum_cohen
+    # cum_codes['avg_effect'] = drg.sum_effect/drg.group_size
+
+    cum_codes.columns=['Description', 'num_sig_procs', 'sum_effect']
+
+    cum_codes = cum_codes.merge(drg, on='Description')
+    cum_codes['avg_effect'] = cum_codes.sum_effect/cum_codes.group_size
+    cum_codes['code'] = cum_codes.Description.apply(lambda x: x[0:6])
+
+    return cum_codes
