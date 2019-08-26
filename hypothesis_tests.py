@@ -23,12 +23,22 @@ def create_sample_dists(cleaned_data, y_var=None):
     :return: a list of sample distributions to be used in subsequent t-tests
 
     """
-    metro = cleaned_data.loc[cleaned_data['csi'] == 1][y_var]
-    non_metro = cleaned_data.loc[cleaned_data['csi'] != 1][y_var]
+    metro = cleaned_data.loc[cleaned_data['csi'] == '1'][y_var]
+    non_metro = cleaned_data.loc[cleaned_data['csi'] != '1'][y_var]
     
     htest_dfs = [metro,non_metro]
     
     return htest_dfs
+
+def get_sample_means(sample, size=100):
+
+    sample_means = []
+    
+    for i in range(0,100000):
+        a_mean = np.mean(np.random.choice(sample, size=size))
+        sample_means.append(a_mean)
+    
+    return sample_means
     
 def Cohen_d(group1, group2):
 
@@ -71,12 +81,8 @@ def hypothesis_test_one(cleaned_data,alpha = 0.5):#Total Hospital Charges
     :param cleaned_data:
     :return:
     """
-    # Get data for tests
     comparison_groups = create_sample_dists(cleaned_data,
                                             y_var='average_covered_charges')
-    ###
-    
-    # Main chunk of code using t-tests or z-tests, effect size, power, etc
    
     metro_sample = comparison_groups[0]
     non_metro_sample = comparison_groups[1]
@@ -85,19 +91,18 @@ def hypothesis_test_one(cleaned_data,alpha = 0.5):#Total Hospital Charges
     coh_d = abs(Cohen_d(metro_sample, non_metro_sample))
     nobs1 = len(non_metro_sample)
     ratio = len(metro_sample)/nobs1
+    
     power = pw.tt_ind_solve_power(effect_size=coh_d, nobs1=nobs1, alpha=alpha, 
                                   power=None, ratio=ratio,
                                   alternative='two-sided')
-    ###
 
-    # starter code for return statement and printed results
     status = compare_pval_alpha(p_val, alpha)
     assertion = ''
     if status == 'Fail to reject':
         assertion = 'cannot'
     else:
         assertion = "can"
-        # calculations for effect size, power, etc here as well
+      
 
     print(f'Based on the p value of {p_val} and our aplha of {alpha} we {status.lower()}  the null hypothesis.'
           f'\n Due to these results, we  {assertion} state that there is a difference in charges between Hospitals in Metro and Non-Metro Areas')
@@ -121,7 +126,7 @@ def hypothesis_test_two(cleaned_data,alpha = 0.5):#out_of_pocket
    
     metro_sample = comparison_groups[0]
     non_metro_sample = comparison_groups[1]
-    
+        
     p_val = st.ttest_ind(metro_sample, non_metro_sample, equal_var=False)[1]
     coh_d = abs(Cohen_d(metro_sample, non_metro_sample))
     nobs1 = len(non_metro_sample)
